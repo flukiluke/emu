@@ -1,0 +1,54 @@
+# (a) -> (-a)
+def negate
+    num -1
+    mul
+def
+
+def square
+    dup
+    mul
+def
+
+# (a b) -> (a^b)
+def exp
+    dup
+    num 0
+    equ
+    bco
+        drop
+        drop
+        num 1
+        ret
+    eco
+    dup
+    num 0
+    lst
+    bco
+        neg_exp
+        ret
+    eco
+    pos_exp
+def
+
+# (a b>0) -> (a^b)
+def pos_exp
+    dig
+    swp
+    num 2
+    num 1
+    bit
+        dig
+        mul
+    eit
+    swp
+    drop
+def
+
+# (a b<0) -> (a^b)
+def neg_exp
+    negate
+    pos_exp
+    num 1.0
+    swp
+    div
+def
