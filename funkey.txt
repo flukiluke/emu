@@ -1,0 +1,121 @@
+FUNKEY: A stack-based musical programming language.
+
+FUNKEY is an imperative, stack-based interpreted programming language with a REPL interface, reminiscent of Forth. Instead of typing though, commands are entered by playing the appropriate musical notes, which are read via the microphone. Briefly, the interpreter is capable of handling integers, basic maths operations, nested conditional (IF) and iterator (FOR) blocks, recursive user-defined functions and variables (though the stack architecture means interesting programs can be written without variables).
+
+Installation
+------------
+The interpreter is written in Python 3, and requires a few libraries that can be installed from pip:
+$ pip3 install --user numpy pyalsaaudio aubio
+to install the libraries without superuser permissions. That's for Linux, I have no idea how one would make this run on other systems. You will need a functioning microphone too, obviously.
+
+
+Input method
+------------
+All commands are mapped to a two or three note sequence, using the 4 notes of a C pentatonic scale: C, D, E, G, A (starting on the C above A440, aka the C one octave above middle C on a piano). A list of commands follows. The first column is the sequence of notes corresponding to the command. The second column is a suggested three-letter text representation of the command; this is not used for anything, but the programmer may find it useful to use to when preparing a program. The last column briefly describes its behaviour (note: TOS == Top Of Stack).
++-----+--------+----------------------------------------+
+|Notes|Mnemonic|               Description              |
++-----+--------+----------------------------------------+
+| C D |  SWP   |swap TOS and TOS - 1                    |
+| C E |  NUM   |push a numeric literal onto the stack   |
+| C G |  DIG   |push TOS - 1                            |
+| C A |  OUT   |pop TOS and output                      |
+| D C |  DUP   |duplicate TOS                           |
+| D E |  END   |end function definition                 |
+| D G |  BCO   |begin conditional block                 |
+| D A |  ECO   |end conditional block                   |
+| E C |  BIT   |begin iteration block                   |
+| E D |  EIT   |end iteration block                     |
+| E G |  CT1   |iteration counter 1                     |
+| E A |  RET   |return from function immediately        |
+| G C |  MUL   |*                                       |
+| G D |  DIV   |/ (integer division, as per Python's //)|
+| G E |  DEF   |begin function definition               |
+| G A |  FUN   |function call                           |
+| A C |  ADD   |+                                       |
+| A D |  SUB   |-                                       |
+| AEC |  STO   |variable store                          |
+| AED |  RCL   |variable recall                         |
+| AEG |  RUN   |<Run program>                           |
+| AEA |  LST   |<                                       |
+| AGC |  GRT   |>                                       |
+| AGD |  EQU   |=                                       |
+| AGE |  MOD   |% (modulo operator)                     |
+| AGA |  CT2   |iteration counter 2                     |
++-----+--------+----------------------------------------+
+
+As will be explained later, NUM, DEF, FUN, STO and RCL are followed by a numeric literal. Entering one of these commands puts the interpreter into a different mode, where each digit of the number is entered as two notes, and given by the number of semitones between the two notes. In this mode, any note from the C up to B may be used, giving some freedom. To mark the end of the number, a high C (two octaves above middle C on piano, notated as C' in this text) is played. To enter the digit 0, use an interval of 10 semitones.
+Example of using the NUM command with the number 902:
+ C E   D B   C Bb   F# G#   C'
+|---| |---| |----| |-----| |-|
+ NUM    9     0       2     End number
+
+Note repetition: As a rule, repeated notes are ignored. If a command begins with the same note another ends on, any key other than C, D, E, G, A between C and C' can be inserted to 'break apart' the note. So OUT followed by RUN might be C A F# A E G, where the F# has been chosen randomly. Please note that repetition is also ignored in numeric mode. You are encouraged to be creative with the choice of note pairs for inputting numbers.
+
+
+Commands
+--------
+In the stack drawings here, the top of the stack is to the right.
+
+SWP: Swaps the two values at the top of the stack.
+    e.g. 5,2,4 -> 5,4,2
+NUM: Followed by a numeric literal. Pushes that number onto the stack.
+DIG: Duplicates the penultimate value on the stack.
+    e.g. 5,2,4 -> 5,2,4,2
+OUT: Pops a value off the stack and prints it.
+    e.g. 5,2,4 -> 5,2 (with 4 printed)
+DUP: Duplicates the value on the TOS.
+    e.g. 5,2,4 -> 5,2,4,4
+BCO/ECO: Begins conditional block. Pops the TOS, and if value is non-zero executes commands between here and the matching ECO (End conditional block). If value is zero, commands in block are not executed.
+BIT/EIT: Begins iteration block. Pops three values off stack: the increment amount, the start value and finally the end value. A counter is initialised to the start value. Code is executed between the BIT and the matching EIT, incrementing the counter by the increment amount each time. Execution ends as soon as the counter exceeds the end value. Think "for (i = start; i <= end; i += increment)" in C.
+CT1/CT2: Push the counter value of an iteration loop to the stack. CT1 is the inner loop, CT2 is the iteration loop immediately outside it, if it exists.
+RET: Inside a function, returns to the calling code immediately.
+MUL/DIV/ADD/SUB/MOD: Perform basic maths operations on the two values on TOS and push result.
+    e.g. MUL: 1,20,5 -> 1,100
+         DIV: 1,20,5 -> 1,4
+         ADD: 1,20,5 -> 1,25
+         SUB: 1,20,5 -> 1,15
+         MOD: 1,22,5 -> 1,2
+LST/GRT/EQU: Compare the two values on TOS for less than, greater than or equality, respectively. Push 1 if true, 0 if false. Order of arguments is as for the maths commands.
+STO: Pop the TOS value and store it in a variable. The variable is specified by a numeric literal following the command.
+RCL: Push the contents of a variable specified by a numeric literal onto the stack.
+DEF: Begin a function definition. Followed first by a numeric literal to give a name to the function, then by a sequence of commands that are the function body. The definition is finished with the END command. Functions may be recursive, but they use the same stack, variables and functions as in the calling code (this means STO and RCL only access global variables).
+FUN: Call a function. The function is specified by a numeric literal. Note that there is no concepts of passing formal parameters to a function; push values to the stack then call the function.
+RUN: Actually runs the program.
+
+
+Some examples
+-------------
+One plus one: NUM 1 DUP ADD OUT RUN
+C E G# A C'
+D C
+A C F#
+C A F#
+A E G
+
+Factorial: DEF 1 NUM 1 SWP DIG DUP BIT CT1 MUL EIT END NUM 5 FUN 1 OUT RUN
+G E C C# C'
+C E D# E C'
+C D
+C G
+D C
+E C
+E G G#
+G C
+E D F#
+D E
+C E D G C'
+G A F F# C'
+C A F
+A E G
+One could also define the factorial function recursively: DEF 1 DUP NUM 0 EQU BCO NUM 1 ADD RET ECO DUP NUM 1 SUB FUN 1 MUL DEF
+
+Variable store/recall: NUM 2 NUM 5 STO 2 OUT RCL 2 OUT RUN
+C E G A C'
+C E F# B C'
+A E C D E C'
+C A
+A E D E F# C'
+C A F
+A E
+
+Have fun!
