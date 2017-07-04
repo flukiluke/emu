@@ -9,7 +9,7 @@ class Machine(object):
         self.ip = 0
         self.variables = variables
         self.functions = functions
-        self.commands = ['DMP', 'RET', 'OUT', 'DIG', 'NUM', 'STR', 'DUP', 'SWP', 'ADD', 'SUB', 'MUL', 'DIV', 'MOD', 'LST', 'GRT', 'EQU', 'BCO', 'ECO', 'BIT', 'EIT', 'CT1', 'CT2', 'STO', 'RCL', 'DEF', 'FUN', 'INP', 'IND', 'LEN']
+        self.commands = ['DMP', 'RET', 'OUT', 'DIG', 'NUM', 'STR', 'DUP', 'SWP', 'ADD', 'SUB', 'MUL', 'DIV', 'MOD', 'LST', 'GRT', 'EQU', 'BCO', 'ECO', 'BIT', 'EIT', 'CT1', 'CT2', 'STO', 'RCL', 'DEF', 'FUN', 'INP', 'IND', 'LEN', 'BRK', 'NXT']
 
     def feed(self, program):
         self.ip = 0
@@ -133,6 +133,24 @@ class Machine(object):
         else:
             self.cts.pop()
             self.control.pop()
+
+    def cmd_BRK(self):
+        ctrl = None
+        for i in range(-1, -len(self.control) - 1, -1):
+            if self.control[i][0] != -1:
+                ctrl = i
+                break
+        if ctrl is None:
+            raise SyntaxError('BRK outside iteration')
+        n = 1
+        while self.program[self.ip] != 'EIT' or n:
+            self.ip += 1
+            if self.program[self.ip] == 'BIT':
+                n += 1
+            elif self.program[self.ip] == 'EIT':
+                n -= 1
+        self.cts.pop()
+        self.control = self.control[:ctrl]
 
     def cmd_CT1(self):
         if len(self.cts) < 1:
