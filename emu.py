@@ -63,7 +63,7 @@ class Machine(object):
         self.ip += 1
 
     def cmd_STR(self):
-        self.push(self.program[self.ip + 1].replace(';N', '\n').replace(';S', ' ').replace(';;', ';'))
+        self.push(self.program[self.ip + 1].replace(';N', '\n').replace(';_', ' ').replace(';;', ';'))
         self.ip += 1
 
     def cmd_DIG(self):
