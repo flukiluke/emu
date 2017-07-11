@@ -2,12 +2,12 @@
 import sys
 
 class Machine(object):
-    def __init__(self, stack = [], variables = {}, functions = {}):
+    def __init__(self, stack = [], functions = {}):
         self.stack = stack
         self.control = []
         self.cts = []
         self.ip = 0
-        self.variables = variables
+        self.variables = {}
         self.functions = functions
         self.commands = ['DMP', 'RET', 'OUT', 'DIG', 'NUM', 'STR', 'DUP', 'SWP', 'ADD', 'SUB', 'MUL', 'DIV', 'MOD', 'LST', 'GRT', 'EQU', 'BCO', 'ECO', 'BIT', 'EIT', 'CT1', 'CT2', 'STO', 'RCL', 'DEF', 'FUN', 'INP', 'IND', 'LEN', 'BRK', 'NXT']
 
@@ -29,7 +29,7 @@ class Machine(object):
     def funccall(self, func):
         if func not in self.functions:
             raise SyntaxError('Unknown command: ' + func)
-        call = Machine(stack = self.stack, variables = self.variables, functions = self.functions)
+        call = Machine(stack = self.stack, functions = self.functions)
         call.feed(self.functions[func])
         call.run()
 
