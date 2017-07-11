@@ -1,0 +1,15 @@
+# (a) -> () 
+def drop 
+    bco 
+    eco 
+def 
+ 
+# True -> 0, False -> 1 
+def not 
+    bco 
+        num 0 
+        ret 
+    eco 
+    num 1 
+def 
+

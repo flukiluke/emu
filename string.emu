@@ -1,0 +1,112 @@
+# (haystack needle)
+def sfind
+    dup
+    num 1
+    ind
+    sto start-char
+    sto needle
+    len
+    swp
+    drop
+    dig
+    len
+    swp
+    drop
+    swp
+    sub
+    num 1
+    add
+    num 1 dup
+    bit
+        ct1
+        rcl start-char
+        scfind
+        dup
+        not
+        bco
+            ret
+        eco
+        swp
+        dig
+        rcl needle
+        swp
+        sisat
+        bco
+            swp
+            ret
+        eco
+        swp
+        drop
+    eit
+    num 0
+def
+
+# (haystack start character_needle) -> (haystack index)
+def scfind
+    sto needle
+    dig
+    len
+    swp
+    drop
+    swp
+    num 1
+    bit
+        ct1
+        ind
+        rcl needle
+        equ
+        bco
+            ct1
+            ret
+        eco
+    eit
+    num 0
+def
+
+# (haystack needle location) -> (haystack boolean)
+def sisat
+    num 1
+    sub
+    sto start
+    len
+    swp
+    sto needle
+
+    dig
+    len
+    swp
+    drop
+    swp
+    sub
+    rcl start
+    swp
+    grt
+    bco
+        num 0
+        ret
+    eco
+    
+    rcl needle
+    len
+    swp
+    drop
+    num 1 dup
+    bit
+        ct1
+        rcl start
+        add
+        ind
+        rcl needle
+        ct1
+        ind
+        swp
+        drop
+        equ
+        not
+        bco
+            num 0
+            ret
+        eco
+    eit
+    num 1
+def
