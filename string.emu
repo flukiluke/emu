@@ -1,5 +1,5 @@
 # (haystack needle)
-def sfind
+def str-find
     dup
     num 1
     ind
@@ -20,7 +20,7 @@ def sfind
     bit
         ct1
         rcl start-char
-        scfind
+        str-char-find
         dup
         not
         bco
@@ -30,7 +30,7 @@ def sfind
         dig
         rcl needle
         swp
-        sisat
+        str-is-at
         bco
             swp
             ret
@@ -42,7 +42,7 @@ def sfind
 def
 
 # (haystack start character_needle) -> (haystack index)
-def scfind
+def str-char-find
     sto needle
     dig
     len
@@ -64,7 +64,7 @@ def scfind
 def
 
 # (haystack needle location) -> (haystack boolean)
-def sisat
+def str-is-at
     num 1
     sub
     sto start
@@ -110,3 +110,12 @@ def sisat
     eit
     num 1
 def
+
+# (subject start end) -> (subject substring)
+#def str-substr
+#    swp
+#    num 1
+#    bit
+#        ct1
+#        ind
+        

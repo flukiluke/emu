@@ -2,4 +2,6 @@ Emu and FUNKEY: A programming duet.
 
 FUNKEY is a stack-based language with an input method based on playing music into the microphone. It was written for a competition with a 100 line limit, hence the light code golfing. See funkey.txt for details.
 
-Emu is a successor to FUNKEY; it takes the same basic language, extends it and uses a more traditional textual interface. Documentation for Emu is yet to be written.
+Emu is a successor to FUNKEY; it takes the same basic language, extends it and uses a more traditional textual interface. Briefly, it adds strings using the STR command, INP for console input and BRK for breaking out of loops.
+
+The beginnings of a standard library are provided in the .emu files. Pass their file names to the interpreter on the command line to load them (this works for any file you want to run).
